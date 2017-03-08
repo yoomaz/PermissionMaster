@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.graypn.permissionmaster">
+
+    <application>
+        <activity
+            android:name=".PermissionMasterActivity"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.Transparent" />
+    </application>
+
+</manifest>
