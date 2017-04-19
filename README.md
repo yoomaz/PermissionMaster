@@ -1,7 +1,19 @@
 # PermissionMaster
 一个 Android 权限请求框架，简化请求的逻辑，一行代码完成权限请求的操作
 
-## Usage
+
+
+## 添加依赖
+
+在 `build.gradle` 文件中添加如下部分：
+
+```
+dependencies {
+    compile 'com.graypn:permissionmaster:0.8.0'
+}
+```
+
+## 使用方法
 
 1. 单个权限请求，传入 `PermissionListener` 回调处理请求的结果，如果用户拒绝了，可以调用 `PermissionDeniedResponse.isPermanentlyDenied()` 确定是否是永久拒绝，如果是永久拒绝了，一般会进一步提示用户需要开启权限，然后跳转到应用设置界面让用户手动开启。
 
