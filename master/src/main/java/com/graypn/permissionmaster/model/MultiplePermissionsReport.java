@@ -53,12 +53,12 @@ public final class MultiplePermissionsReport {
         return hasPermanentlyDeniedAnyPermission;
     }
 
-    public boolean addGrantedPermissionResponse(PermissionGrantedResponse response) {
-        return grantedPermissionResponses.add(response);
+    public void addGrantedPermissionResponse(PermissionGrantedResponse response) {
+        grantedPermissionResponses.add(response);
     }
 
-    public boolean addDeniedPermissionResponse(PermissionDeniedResponse response) {
-        return deniedPermissionResponses.add(response);
+    public void addDeniedPermissionResponse(PermissionDeniedResponse response) {
+        deniedPermissionResponses.add(response);
     }
 
     public void clear() {

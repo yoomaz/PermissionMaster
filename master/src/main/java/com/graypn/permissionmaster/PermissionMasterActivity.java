@@ -9,17 +9,19 @@ import android.view.WindowManager;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by ZhuLei on 2017/3/6.
  * Email: zhuleineuq@gmail.com
  */
 
-public class PermissionMasterActivity extends Activity{
+class PermissionMasterActivity extends Activity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         PermissionMaster.onActivityReady(this);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
@@ -27,14 +29,15 @@ public class PermissionMasterActivity extends Activity{
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+
         PermissionMaster.onActivityReady(this);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        Collection<String> grantedPermissions = new LinkedList<>();
-        Collection<String> deniedPermissions = new LinkedList<>();
+        List<String> grantedPermissions = new LinkedList<>();
+        List<String> deniedPermissions = new LinkedList<>();
 
         for (int i = 0; i < permissions.length; i++) {
             String permission = permissions[i];

@@ -11,18 +11,12 @@ public final class PermissionDeniedResponse {
     private final PermissionRequest requestedPermission;
     private final boolean permanentlyDenied;
 
-    public PermissionDeniedResponse(@NonNull PermissionRequest requestedPermission,
-                                    boolean permanentlyDenied) {
+    private PermissionDeniedResponse(@NonNull PermissionRequest requestedPermission, boolean permanentlyDenied) {
         this.requestedPermission = requestedPermission;
         this.permanentlyDenied = permanentlyDenied;
     }
 
-    /**
-     * Builds a new instance of PermissionDeniedResponse from a given permission string
-     * and a permanently-denied boolean flag
-     */
-    public static PermissionDeniedResponse from(@NonNull String permission,
-                                                boolean permanentlyDenied) {
+    public static PermissionDeniedResponse from(@NonNull String permission, boolean permanentlyDenied) {
         return new PermissionDeniedResponse(new PermissionRequest(permission), permanentlyDenied);
     }
 

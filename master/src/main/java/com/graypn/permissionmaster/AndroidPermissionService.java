@@ -8,38 +8,38 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 /**
- * Wrapper class for all the static calls to the Android permission system
+ * 封装一些和操作系统的权限操作
  */
 class AndroidPermissionService {
 
-  /**
-   * @see ContextCompat#checkSelfPermission
-   */
-  int checkSelfPermission(@NonNull Context context, @NonNull String permission) {
-    return ContextCompat.checkSelfPermission(context, permission);
-  }
-
-  /**
-   * @see ActivityCompat#requestPermissions
-   */
-  void requestPermissions(@Nullable Activity activity, @NonNull String[] permissions,
-                          int requestCode) {
-    if (activity == null) {
-      return;
+    /**
+     * @see ContextCompat#checkSelfPermission
+     */
+    int checkSelfPermission(@NonNull Context context, @NonNull String permission) {
+        return ContextCompat.checkSelfPermission(context, permission);
     }
 
-    ActivityCompat.requestPermissions(activity, permissions, requestCode);
-  }
+    /**
+     * @see ActivityCompat#requestPermissions
+     */
+    void requestPermissions(@Nullable Activity activity, @NonNull String[] permissions,
+                            int requestCode) {
+        if (activity == null) {
+            return;
+        }
 
-  /**
-   * @see ActivityCompat#shouldShowRequestPermissionRationale
-   */
-  boolean shouldShowRequestPermissionRationale(@Nullable Activity activity,
-      @NonNull String permission) {
-    if (activity == null) {
-      return false;
+        ActivityCompat.requestPermissions(activity, permissions, requestCode);
     }
 
-    return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
-  }
+    /**
+     * @see ActivityCompat#shouldShowRequestPermissionRationale
+     */
+    boolean shouldShowRequestPermissionRationale(@Nullable Activity activity,
+                                                 @NonNull String permission) {
+        if (activity == null) {
+            return false;
+        }
+
+        return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
+    }
 }

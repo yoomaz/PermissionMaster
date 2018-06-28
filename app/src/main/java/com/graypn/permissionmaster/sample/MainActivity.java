@@ -18,15 +18,38 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btn;
+    private Button btnSingle;
+    private Button btnMulti;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btn = (Button) findViewById(R.id.btn);
-        btn.setOnClickListener(new View.OnClickListener() {
+        btnSingle = findViewById(R.id.btn_single);
+        btnMulti = findViewById(R.id.btn_multi);
+
+        btnSingle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PermissionMaster.withActivity(MainActivity.this)
+                        .withPermission(Manifest.permission.CAMERA)
+                        .withListener(new PermissionListener() {
+                            @Override
+                            public void onPermissionGranted(PermissionGrantedResponse response) {
+                                Log.i("MainActivity", "onPermissionGranted：" + response.getPermissionName());
+                            }
+
+                            @Override
+                            public void onPermissionDenied(PermissionDeniedResponse response) {
+                                Log.i("MainActivity", "onPermissionDenied:" + response.isPermanentlyDenied());
+                            }
+                        })
+                        .check();
+            }
+        });
+
+        btnMulti.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 PermissionMaster.withActivity(MainActivity.this)
@@ -47,23 +70,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         })
                         .check();
-
-
-
-//                PermissionMaster.withActivity(MainActivity.this)
-//                        .withPermission(Manifest.permission.CAMERA)
-//                        .withListener(new PermissionListener() {
-//                            @Override
-//                            public void onPermissionGranted(PermissionGrantedResponse response) {
-//                                Log.i("MainActivity", "onPermissionGranted：" + response.getPermissionName());
-//                            }
-//
-//                            @Override
-//                            public void onPermissionDenied(PermissionDeniedResponse response) {
-//                                Log.i("MainActivity", "onPermissionDenied:" + response.isPermanentlyDenied());
-//                            }
-//                        })
-//                        .check();
             }
         });
     }

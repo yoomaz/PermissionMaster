@@ -25,8 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 final class PermissionMasterInstance {
 
     private static final int PERMISSIONS_REQUEST_CODE = 42;
-    private static final MultiplePermissionsListener EMPTY_LISTENER =
-            new EmptyMultiplePermissionsListener();
+    private static final MultiplePermissionsListener EMPTY_LISTENER = new EmptyMultiplePermissionsListener();
 
     private WeakReference<Context> mContext;
     private Activity mActivity;
@@ -34,11 +33,12 @@ final class PermissionMasterInstance {
     private final Collection<String> mPendingPermissions;
     private final MultiplePermissionsReport mMultiplePermissionsReport;
     private MultiplePermissionsListener mMultiplePermissionsListener;
-
+    // 原子操作，确定当前只进行一个系统权限申请请求
     private final AtomicBoolean mIsShowingNativeDialog;
 
     PermissionMasterInstance(Context context) {
         setContext(context);
+
         androidPermissionService = new AndroidPermissionService();
         mPendingPermissions = new TreeSet<>();
         mMultiplePermissionsReport = new MultiplePermissionsReport();
@@ -67,7 +67,8 @@ final class PermissionMasterInstance {
             }
             listener.onPermissionsChecked(report);
         } else {
-            startTransparentActivityIfNeeded();
+            // 开始去申请权限
+            startTransparentActivity();
         }
     }
 
@@ -102,6 +103,9 @@ final class PermissionMasterInstance {
         onPermissionsChecked(permissions);
     }
 
+    /**
+     * 检查所有权限是否都已经拥有
+     */
     private boolean isEveryPermissionGranted(Collection<String> permissions, Context context) {
         for (String permission : permissions) {
             int permissionState = androidPermissionService.checkSelfPermission(context, permission);
@@ -112,7 +116,7 @@ final class PermissionMasterInstance {
         return true;
     }
 
-    private void startTransparentActivityIfNeeded() {
+    private void startTransparentActivity() {
         Context context = mContext.get();
         if (context == null) {
             return;
@@ -121,6 +125,9 @@ final class PermissionMasterInstance {
         context.startActivity(intent);
     }
 
+    /**
+     * 更新待校验的权限状态
+     */
     private void onPermissionsChecked(Collection<String> permissions) {
         if (mPendingPermissions.isEmpty()) {
             return;
@@ -129,15 +136,17 @@ final class PermissionMasterInstance {
         if (mPendingPermissions.isEmpty()) {
             mActivity.finish();
             mActivity = null;
+            // 重置向系统申请权限的开关
             mIsShowingNativeDialog.set(false);
             MultiplePermissionsListener currentListener = mMultiplePermissionsListener;
+            // 不保留 Listener 引用，防止内存泄漏
             mMultiplePermissionsListener = EMPTY_LISTENER;
             currentListener.onPermissionsChecked(mMultiplePermissionsReport);
         }
     }
 
     /**
-     * Starts the native request permissions process
+     * 向操作系统申请权限
      */
     private void requestPermissionsToSystem(Collection<String> permissions) {
         if (permissions.isEmpty()) {

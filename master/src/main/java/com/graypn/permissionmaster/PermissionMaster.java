@@ -5,9 +5,6 @@ import android.app.Activity;
 import com.graypn.permissionmaster.listener.EmptyMultiplePermissionsListener;
 import com.graypn.permissionmaster.listener.MultiplePermissionsListener;
 import com.graypn.permissionmaster.listener.PermissionListener;
-import com.graypn.permissionmaster.model.MultiplePermissionsReport;
-import com.graypn.permissionmaster.model.PermissionDeniedResponse;
-import com.graypn.permissionmaster.model.PermissionGrantedResponse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,14 +24,10 @@ public class PermissionMaster implements PermissionMasterBuilder,
 
     private static PermissionMasterInstance mInstance;
 
-    private Collection<String> mPermissions;
-    private MultiplePermissionsListener mMutileListener = new EmptyMultiplePermissionsListener();
+    private List<String> mPermissions;
+    private MultiplePermissionsListener mMultipleListener = new EmptyMultiplePermissionsListener();
 
     private PermissionMaster(Activity activity) {
-        initialize(activity);
-    }
-
-    private void initialize(Activity activity) {
         if (mInstance == null) {
             mInstance = new PermissionMasterInstance(activity);
         } else {
@@ -46,6 +39,7 @@ public class PermissionMaster implements PermissionMasterBuilder,
         return new PermissionMaster(activity);
     }
 
+    /** ------- 实现 PermissionMasterBuilder.Permission 相关接口 --------*/
     @Override
     public SinglePermissionListener withPermission(String permission) {
         mPermissions = Collections.singletonList(permission);
@@ -64,65 +58,49 @@ public class PermissionMaster implements PermissionMasterBuilder,
         return this;
     }
 
+    /** ------- 实现 PermissionMasterBuilder.SinglePermissionListener 相关接口 --------*/
+
     @Override
     public PermissionMasterBuilder withListener(PermissionListener listener) {
-        mMutileListener = new MultiplePermissionsListenerToPermissionListenerAdapter(listener);
+        mMultipleListener = new MultiplePermissionsListenerToPermissionListenerAdapter(listener);
         return this;
     }
 
+    /** ------- 实现 PermissionMasterBuilder.MultiPermissionListener 相关接口 --------*/
+
     @Override
     public PermissionMasterBuilder withListener(MultiplePermissionsListener listener) {
-        mMutileListener = listener;
+        mMultipleListener = listener;
         return this;
     }
+
+    /** ------- 实现 PermissionMasterBuilder 相关接口 --------*/
 
     @Override
     public void check() {
         try {
-            mInstance.checkPermissions(mMutileListener, mPermissions);
+            mInstance.checkPermissions(mMultipleListener, mPermissions);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
+    /**
+     * 向操作系统申请权限的 Activity 就绪
+     */
     static void onActivityReady(Activity activity) {
         if (mInstance != null) {
             mInstance.onActivityReady(activity);
         }
     }
 
-    static void onPermissionsRequested(Collection<String> grantedPermissions, Collection<String> deniedPermissions) {
+    /**
+     * 处理操作系统权限申请结果
+     */
+    static void onPermissionsRequested(List<String> grantedPermissions, List<String> deniedPermissions) {
         if (mInstance != null) {
             mInstance.updatePermissionsAsGranted(grantedPermissions);
             mInstance.updatePermissionsAsDenied(deniedPermissions);
-        }
-    }
-
-    /**
-     * 多权限回调到但权限回调适配器
-     */
-    private final class MultiplePermissionsListenerToPermissionListenerAdapter
-            implements MultiplePermissionsListener {
-
-        private final PermissionListener listener;
-
-        MultiplePermissionsListenerToPermissionListenerAdapter(PermissionListener listener) {
-            this.listener = listener;
-        }
-
-        @Override
-        public void onPermissionsChecked(MultiplePermissionsReport report) {
-            List<PermissionDeniedResponse> deniedResponses = report.getDeniedPermissionResponses();
-            List<PermissionGrantedResponse> grantedResponses = report.getGrantedPermissionResponses();
-
-            if (!deniedResponses.isEmpty()) {
-                PermissionDeniedResponse response = deniedResponses.get(0);
-                listener.onPermissionDenied(response);
-            } else {
-                PermissionGrantedResponse response = grantedResponses.get(0);
-                listener.onPermissionGranted(response);
-            }
         }
     }
 }
