@@ -1,14 +1,18 @@
 package com.graypn.permissionmaster;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.provider.Settings;
+import android.text.TextUtils;
 
 import com.graypn.permissionmaster.listener.EmptyMultiplePermissionsListener;
 import com.graypn.permissionmaster.model.MultiplePermissionsReport;
-import com.graypn.permissionmaster.model.PermissionDeniedResponse;
-import com.graypn.permissionmaster.model.PermissionGrantedResponse;
+import com.graypn.permissionmaster.model.PermissionResponse;
 import com.graypn.permissionmaster.listener.MultiplePermissionsListener;
 
 import java.lang.ref.WeakReference;
@@ -18,8 +22,7 @@ import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Created by ZhuLei on 2017/3/6.
- * Email: zhuleineuq@gmail.com
+ * 权限请求实体
  */
 
 final class PermissionMasterInstance {
@@ -45,6 +48,42 @@ final class PermissionMasterInstance {
         mIsShowingNativeDialog = new AtomicBoolean();
     }
 
+    /**
+     * 打开系统设置界面
+     */
+    static void openSettingDialog(final Activity context, final int requestCode, String title, String content, final DialogInterface.OnClickListener onCancelClickListener) {
+        String dialogTitle = title;
+        String dialogContent = content;
+        if (TextUtils.isEmpty(dialogTitle)) {
+            dialogTitle = context.getResources().getString(R.string.permissionmaster_setting_dialog_title);
+        }
+        if (TextUtils.isEmpty(dialogContent)) {
+            dialogContent = context.getResources().getString(R.string.permissionmaster_setting_dialog_content);
+        }
+        new AlertDialog.Builder(context)
+                .setCancelable(false)
+                .setTitle(dialogTitle)
+                .setMessage(dialogContent)
+                .setPositiveButton(context.getResources().getString(R.string.permissionmaster_setting_dialog_btn_positive), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", context.getPackageName(), null);
+                        intent.setData(uri);
+                        context.startActivityForResult(intent, requestCode);
+                    }
+                })
+                .setNegativeButton(context.getResources().getString(R.string.permissionmaster_setting_dialog_btn_negative), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        if (onCancelClickListener != null) {
+                            onCancelClickListener.onClick(dialog, which);
+                        }
+                    }
+                }).show();
+    }
+
     void setContext(Context context) {
         mContext = new WeakReference<>(context);
     }
@@ -63,7 +102,7 @@ final class PermissionMasterInstance {
         if (isEveryPermissionGranted(permissions, mContext.get())) {
             MultiplePermissionsReport report = new MultiplePermissionsReport();
             for (String permission : permissions) {
-                report.addGrantedPermissionResponse(PermissionGrantedResponse.from(permission));
+                report.addGrantedPermissionResponse(PermissionResponse.from(permission));
             }
             listener.onPermissionsChecked(report);
         } else {
@@ -88,7 +127,7 @@ final class PermissionMasterInstance {
 
     void updatePermissionsAsGranted(Collection<String> permissions) {
         for (String permission : permissions) {
-            PermissionGrantedResponse response = PermissionGrantedResponse.from(permission);
+            PermissionResponse response = PermissionResponse.from(permission);
             mMultiplePermissionsReport.addGrantedPermissionResponse(response);
         }
         onPermissionsChecked(permissions);
@@ -96,7 +135,7 @@ final class PermissionMasterInstance {
 
     void updatePermissionsAsDenied(Collection<String> permissions) {
         for (String permission : permissions) {
-            PermissionDeniedResponse response = PermissionDeniedResponse.from(permission,
+            PermissionResponse response = PermissionResponse.from(permission,
                     !androidPermissionService.shouldShowRequestPermissionRationale(mActivity, permission));
             mMultiplePermissionsReport.addDeniedPermissionResponse(response);
         }
@@ -178,12 +217,6 @@ final class PermissionMasterInstance {
         return permissionStates;
     }
 
-    /*
-     * Workaround for RuntimeException of Parcel#readException.
-     *
-     * For additional details:
-     * https://github.com/Karumi/Dexter/issues/86
-     */
     private int checkSelfPermission(Activity activity, String permission) {
         try {
             return androidPermissionService.checkSelfPermission(activity, permission);

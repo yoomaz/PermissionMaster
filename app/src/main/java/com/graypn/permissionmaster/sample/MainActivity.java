@@ -10,9 +10,8 @@ import android.widget.Button;
 import com.graypn.permissionmaster.PermissionMaster;
 import com.graypn.permissionmaster.listener.MultiplePermissionsListener;
 import com.graypn.permissionmaster.model.MultiplePermissionsReport;
-import com.graypn.permissionmaster.model.PermissionDeniedResponse;
-import com.graypn.permissionmaster.model.PermissionGrantedResponse;
-import com.graypn.permissionmaster.listener.PermissionListener;
+import com.graypn.permissionmaster.model.PermissionResponse;
+import com.graypn.permissionmaster.listener.SinglePermissionListener;
 
 import java.util.List;
 
@@ -32,16 +31,20 @@ public class MainActivity extends AppCompatActivity {
         btnSingle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (PermissionMaster.checkPermissions(MainActivity.this, Manifest.permission.CAMERA)) {
+                    return;
+                }
+
                 PermissionMaster.withActivity(MainActivity.this)
                         .withPermission(Manifest.permission.CAMERA)
-                        .withListener(new PermissionListener() {
+                        .withListener(new SinglePermissionListener() {
                             @Override
-                            public void onPermissionGranted(PermissionGrantedResponse response) {
+                            public void onPermissionGranted(PermissionResponse response) {
                                 Log.i("MainActivity", "onPermissionGranted：" + response.getPermissionName());
                             }
 
                             @Override
-                            public void onPermissionDenied(PermissionDeniedResponse response) {
+                            public void onPermissionDenied(PermissionResponse response) {
                                 Log.i("MainActivity", "onPermissionDenied:" + response.isPermanentlyDenied());
                             }
                         })
@@ -52,21 +55,23 @@ public class MainActivity extends AppCompatActivity {
         btnMulti.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (PermissionMaster.checkPermissions(MainActivity.this, Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS, Manifest.permission.RECORD_AUDIO)) {
+                    return;
+                }
+
                 PermissionMaster.withActivity(MainActivity.this)
                         .withPermissions(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS, Manifest.permission.RECORD_AUDIO)
                         .withListener(new MultiplePermissionsListener() {
                             @Override
                             public void onPermissionsChecked(MultiplePermissionsReport report) {
-                                List<PermissionGrantedResponse> grantedPermissionResponses = report.getGrantedPermissionResponses();
-                                List<PermissionDeniedResponse> deniedPermissionResponses = report.getDeniedPermissionResponses();
-
-                                for (PermissionGrantedResponse response : grantedPermissionResponses) {
-                                    Log.i("MainActivity", "onPermissionGranted：" + response.getPermissionName());
-                                }
-
-                                for (PermissionDeniedResponse response : deniedPermissionResponses) {
-                                    Log.i("MainActivity", "onPermissionDenied:" + response.getPermissionName() + ":" + response.isPermanentlyDenied());
-                                }
+                                // 是否所有权限都被授予
+                                boolean allPermissionsGranted = report.areAllPermissionsGranted();
+                                // 有权限被拒绝
+                                boolean isAnyPermissionPermanentlyDenied = report.isAnyPermissionPermanentlyDenied();
+                                // 获取被允许的权限列表
+                                List<PermissionResponse> grantedPermissionResponses = report.getGrantedPermissionResponses();
+                                // 获取被拒绝的权限列表
+                                List<PermissionResponse> deniedPermissionResponses = report.getDeniedPermissionResponses();
                             }
                         })
                         .check();

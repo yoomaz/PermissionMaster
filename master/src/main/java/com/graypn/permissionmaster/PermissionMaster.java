@@ -1,10 +1,14 @@
 package com.graypn.permissionmaster;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.support.v4.content.ContextCompat;
 
 import com.graypn.permissionmaster.listener.EmptyMultiplePermissionsListener;
 import com.graypn.permissionmaster.listener.MultiplePermissionsListener;
-import com.graypn.permissionmaster.listener.PermissionListener;
+import com.graypn.permissionmaster.listener.SinglePermissionListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,10 +21,11 @@ import java.util.List;
  * Email: zhuleineuq@gmail.com
  */
 
-public class PermissionMaster implements PermissionMasterBuilder,
-        PermissionMasterBuilder.Permission,
-        PermissionMasterBuilder.SinglePermissionListener,
-        PermissionMasterBuilder.MultiPermissionListener {
+public class PermissionMaster implements
+        PermissionMasterBuilder,
+        PermissionMasterBuilder.PermissionBuilder,
+        PermissionMasterBuilder.SinglePermissionListenerBuilder,
+        PermissionMasterBuilder.MultiPermissionListenerBuilder {
 
     private static PermissionMasterInstance mInstance;
 
@@ -35,38 +40,75 @@ public class PermissionMaster implements PermissionMasterBuilder,
         }
     }
 
-    public static PermissionMasterBuilder.Permission withActivity(Activity activity) {
+    public static PermissionMasterBuilder.PermissionBuilder withActivity(Activity activity) {
         return new PermissionMaster(activity);
     }
 
-    /** ------- 实现 PermissionMasterBuilder.Permission 相关接口 --------*/
+    /**
+     * 检查权限
+     */
+    public static boolean checkPermissions(Context context, String... permissions) {
+        for (String permission : permissions) {
+            int permissionState = ContextCompat.checkSelfPermission(context, permission);
+            if (permissionState != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 打开系统设置界面
+     * <p>
+     * 利用系统 Dialog 实现默认方式，可以根据 app 自己的 UI 去实现自定义
+     */
+    public static void openSettingDialog(final Activity context, int requestCode, final DialogInterface.OnClickListener onCancelClickListener) {
+        PermissionMasterInstance.openSettingDialog(context, requestCode, null, null, onCancelClickListener);
+    }
+
+    /**
+     * 打开系统设置界面
+     * <p>
+     * 利用系统 Dialog 实现默认方式，可以根据 app 自己的 UI 去实现自定义
+     */
+    public static void openSettingDialog(final Activity context, int requestCode, String title, String content, final DialogInterface.OnClickListener onCancelClickListener) {
+        PermissionMasterInstance.openSettingDialog(context, requestCode, title, content, onCancelClickListener);
+    }
+
+    /**
+     * ------- 实现 PermissionMasterBuilder.Permission 相关接口 --------
+     */
     @Override
-    public SinglePermissionListener withPermission(String permission) {
+    public SinglePermissionListenerBuilder withPermission(String permission) {
         mPermissions = Collections.singletonList(permission);
         return this;
     }
 
     @Override
-    public MultiPermissionListener withPermissions(String... permissions) {
+    public MultiPermissionListenerBuilder withPermissions(String... permissions) {
         mPermissions = Arrays.asList(permissions);
         return this;
     }
 
     @Override
-    public MultiPermissionListener withPermissions(Collection<String> permissions) {
+    public MultiPermissionListenerBuilder withPermissions(Collection<String> permissions) {
         mPermissions = new ArrayList<>(permissions);
         return this;
     }
 
-    /** ------- 实现 PermissionMasterBuilder.SinglePermissionListener 相关接口 --------*/
+    /**
+     * ------- 实现 PermissionMasterBuilder.SinglePermissionListener 相关接口 --------
+     */
 
     @Override
-    public PermissionMasterBuilder withListener(PermissionListener listener) {
+    public PermissionMasterBuilder withListener(SinglePermissionListener listener) {
         mMultipleListener = new MultiplePermissionsListenerToPermissionListenerAdapter(listener);
         return this;
     }
 
-    /** ------- 实现 PermissionMasterBuilder.MultiPermissionListener 相关接口 --------*/
+    /**
+     * ------- 实现 PermissionMasterBuilder.MultiPermissionListener 相关接口 --------
+     */
 
     @Override
     public PermissionMasterBuilder withListener(MultiplePermissionsListener listener) {
@@ -74,7 +116,9 @@ public class PermissionMaster implements PermissionMasterBuilder,
         return this;
     }
 
-    /** ------- 实现 PermissionMasterBuilder 相关接口 --------*/
+    /**
+     * ------- 实现 PermissionMasterBuilder 相关接口 --------
+     */
 
     @Override
     public void check() {

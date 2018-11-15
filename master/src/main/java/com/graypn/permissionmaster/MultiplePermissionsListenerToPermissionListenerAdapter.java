@@ -1,37 +1,33 @@
 package com.graypn.permissionmaster;
 
 import com.graypn.permissionmaster.listener.MultiplePermissionsListener;
-import com.graypn.permissionmaster.listener.PermissionListener;
+import com.graypn.permissionmaster.listener.SinglePermissionListener;
 import com.graypn.permissionmaster.model.MultiplePermissionsReport;
-import com.graypn.permissionmaster.model.PermissionDeniedResponse;
-import com.graypn.permissionmaster.model.PermissionGrantedResponse;
+import com.graypn.permissionmaster.model.PermissionResponse;
 
 import java.util.List;
 
 /**
  * 多权限转为单权限适配器
- *
- * @author ZhuLei
- * @date 2018/6/28
  */
 class MultiplePermissionsListenerToPermissionListenerAdapter implements MultiplePermissionsListener {
 
-    private final PermissionListener listener;
+    private final SinglePermissionListener listener;
 
-    MultiplePermissionsListenerToPermissionListenerAdapter(PermissionListener listener) {
+    MultiplePermissionsListenerToPermissionListenerAdapter(SinglePermissionListener listener) {
         this.listener = listener;
     }
 
     @Override
     public void onPermissionsChecked(MultiplePermissionsReport report) {
-        List<PermissionDeniedResponse> deniedResponses = report.getDeniedPermissionResponses();
-        List<PermissionGrantedResponse> grantedResponses = report.getGrantedPermissionResponses();
+        List<PermissionResponse> deniedResponses = report.getDeniedPermissionResponses();
+        List<PermissionResponse> grantedResponses = report.getGrantedPermissionResponses();
 
         if (!deniedResponses.isEmpty()) {
-            PermissionDeniedResponse response = deniedResponses.get(0);
+            PermissionResponse response = deniedResponses.get(0);
             listener.onPermissionDenied(response);
         } else {
-            PermissionGrantedResponse response = grantedResponses.get(0);
+            PermissionResponse response = grantedResponses.get(0);
             listener.onPermissionGranted(response);
         }
     }

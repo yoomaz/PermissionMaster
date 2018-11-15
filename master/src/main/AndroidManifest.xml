@@ -4,7 +4,7 @@
     <application>
         <activity
             android:name=".PermissionMasterActivity"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTask"
             android:theme="@style/Theme.Transparent" />
     </application>
 

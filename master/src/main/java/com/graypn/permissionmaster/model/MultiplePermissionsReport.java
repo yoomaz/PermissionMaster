@@ -4,12 +4,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * An in detail report of the request permission process
+ * 多个权限请求结果
  */
 public final class MultiplePermissionsReport {
 
-    private final List<PermissionGrantedResponse> grantedPermissionResponses;
-    private final List<PermissionDeniedResponse> deniedPermissionResponses;
+    private final List<PermissionResponse> grantedPermissionResponses;
+    private final List<PermissionResponse> deniedPermissionResponses;
 
     public MultiplePermissionsReport() {
         grantedPermissionResponses = new LinkedList<>();
@@ -17,33 +17,33 @@ public final class MultiplePermissionsReport {
     }
 
     /**
-     * Returns a collection with all the permissions that has been granted
+     * 获取授予的权限
      */
-    public List<PermissionGrantedResponse> getGrantedPermissionResponses() {
+    public List<PermissionResponse> getGrantedPermissionResponses() {
         return grantedPermissionResponses;
     }
 
     /**
-     * Returns a collection with all the permissions that has been denied
+     * 获取拒绝的权限
      */
-    public List<PermissionDeniedResponse> getDeniedPermissionResponses() {
+    public List<PermissionResponse> getDeniedPermissionResponses() {
         return deniedPermissionResponses;
     }
 
     /**
-     * Returns whether the user has granted all the requested permission
+     * 是否所有权限被授予
      */
     public boolean areAllPermissionsGranted() {
         return deniedPermissionResponses.isEmpty();
     }
 
     /**
-     * Returns whether the user has permanently denied any of the requested permissions
+     * 是否有一个权限永久被拒绝
      */
     public boolean isAnyPermissionPermanentlyDenied() {
         boolean hasPermanentlyDeniedAnyPermission = false;
 
-        for (PermissionDeniedResponse deniedResponse : deniedPermissionResponses) {
+        for (PermissionResponse deniedResponse : deniedPermissionResponses) {
             if (deniedResponse.isPermanentlyDenied()) {
                 hasPermanentlyDeniedAnyPermission = true;
                 break;
@@ -53,11 +53,11 @@ public final class MultiplePermissionsReport {
         return hasPermanentlyDeniedAnyPermission;
     }
 
-    public void addGrantedPermissionResponse(PermissionGrantedResponse response) {
+    public void addGrantedPermissionResponse(PermissionResponse response) {
         grantedPermissionResponses.add(response);
     }
 
-    public void addDeniedPermissionResponse(PermissionDeniedResponse response) {
+    public void addDeniedPermissionResponse(PermissionResponse response) {
         deniedPermissionResponses.add(response);
     }
 

@@ -1,32 +1,31 @@
 package com.graypn.permissionmaster;
 
 import com.graypn.permissionmaster.listener.MultiplePermissionsListener;
-import com.graypn.permissionmaster.listener.PermissionListener;
+import com.graypn.permissionmaster.listener.SinglePermissionListener;
 
 import java.util.Collection;
 
 /**
- * Created by ZhuLei on 2017/3/6.
- * Email: zhuleineuq@gmail.com
+ * 接口集合
  */
 
 public interface PermissionMasterBuilder {
 
     void check();
 
-    interface Permission {
-        PermissionMasterBuilder.SinglePermissionListener withPermission(String permission);
+    interface PermissionBuilder {
+        SinglePermissionListenerBuilder withPermission(String permission);
 
-        PermissionMasterBuilder.MultiPermissionListener withPermissions(String... permissions);
+        PermissionMasterBuilder.MultiPermissionListenerBuilder withPermissions(String... permissions);
 
-        PermissionMasterBuilder.MultiPermissionListener withPermissions(Collection<String> permissions);
+        PermissionMasterBuilder.MultiPermissionListenerBuilder withPermissions(Collection<String> permissions);
     }
 
-    interface SinglePermissionListener {
-        PermissionMasterBuilder withListener(PermissionListener listener);
+    interface SinglePermissionListenerBuilder {
+        PermissionMasterBuilder withListener(SinglePermissionListener listener);
     }
 
-    interface MultiPermissionListener {
+    interface MultiPermissionListenerBuilder {
         PermissionMasterBuilder withListener(MultiplePermissionsListener listener);
     }
 

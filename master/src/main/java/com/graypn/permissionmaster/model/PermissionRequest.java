@@ -3,7 +3,7 @@ package com.graypn.permissionmaster.model;
 import android.support.annotation.NonNull;
 
 /**
- * Wrapper class for a permission request
+ * 权限请求封装
  */
 public final class PermissionRequest {
 
@@ -13,9 +13,6 @@ public final class PermissionRequest {
         this.name = name;
     }
 
-    /**
-     * One of the values found in {@link android.Manifest.permission}
-     */
     public String getName() {
         return name;
     }

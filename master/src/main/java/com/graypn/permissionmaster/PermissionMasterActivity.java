@@ -7,16 +7,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.WindowManager;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Created by ZhuLei on 2017/3/6.
- * Email: zhuleineuq@gmail.com
+ * 请求中间透明背景Activity
  */
 
-class PermissionMasterActivity extends Activity{
+public class PermissionMasterActivity extends Activity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

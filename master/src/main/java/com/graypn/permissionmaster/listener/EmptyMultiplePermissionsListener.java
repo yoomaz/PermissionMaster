@@ -3,8 +3,7 @@ package com.graypn.permissionmaster.listener;
 import com.graypn.permissionmaster.model.MultiplePermissionsReport;
 
 /**
- * Empty implementation of {@link MultiplePermissionsListener} to allow extensions to implement
- * only the required methods
+ * 默认空响应回调，当用户没有设置回调的时候使用
  */
 public class EmptyMultiplePermissionsListener implements MultiplePermissionsListener {
 

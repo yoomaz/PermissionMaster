@@ -13,17 +13,16 @@ import android.support.v4.content.ContextCompat;
 class AndroidPermissionService {
 
     /**
-     * @see ContextCompat#checkSelfPermission
+     * 检查权限
      */
     int checkSelfPermission(@NonNull Context context, @NonNull String permission) {
         return ContextCompat.checkSelfPermission(context, permission);
     }
 
     /**
-     * @see ActivityCompat#requestPermissions
+     * 申请权限
      */
-    void requestPermissions(@Nullable Activity activity, @NonNull String[] permissions,
-                            int requestCode) {
+    void requestPermissions(@Nullable Activity activity, @NonNull String[] permissions, int requestCode) {
         if (activity == null) {
             return;
         }
@@ -32,14 +31,10 @@ class AndroidPermissionService {
     }
 
     /**
-     * @see ActivityCompat#shouldShowRequestPermissionRationale
+     * 是否永远拒绝权限
      */
-    boolean shouldShowRequestPermissionRationale(@Nullable Activity activity,
-                                                 @NonNull String permission) {
-        if (activity == null) {
-            return false;
-        }
-
-        return ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
+    boolean shouldShowRequestPermissionRationale(@Nullable Activity activity, @NonNull String permission) {
+        return activity != null
+                && ActivityCompat.shouldShowRequestPermissionRationale(activity, permission);
     }
 }
